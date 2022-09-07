@@ -1,9 +1,9 @@
 import torch.nn as nn
 
 
-class model(nn.Module):
+class cnn_model(nn.Module):
     def __init__(self):
-        super(model, self).__init__()
+        super(cnn_model, self).__init__()
         pass
 
     def forward(self):
