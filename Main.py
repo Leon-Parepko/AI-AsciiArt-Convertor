@@ -12,11 +12,9 @@ from tqdm import tqdm
 import torch
 import torchvision
 import checks
-import Functional
-import augmentations
+from data_loaders import ImgLoader
 from Models import cnn_model
-from datasets import SymbolDataset
-from datasets import NaturalImagesDataset
+from datasets import AugmentedDataset
 import matplotlib.pyplot as plt
 
 # # Load image
@@ -31,36 +29,19 @@ mode = "train"
 
 
 
-
-model = cnn_model().to(checks.gpu_check())
+device = checks.gpu_check()
+model = cnn_model().to()
 
 if mode == "train":
-    # Load all images as datasets (without augmentation)
-    symb_dataset = SymbolDataset("Data/Dataset/Font_letters", transform=torchvision.transforms.ToTensor())
-    img_dataset = NaturalImagesDataset("Data/Dataset/Natural_Images", transform=torchvision.transforms.ToTensor())
 
-    symb = symb_dataset[16][0].reshape((47, 27))
-    bg = torchvision.transforms.Grayscale(num_output_channels=1)(img_dataset[10][0])[0]
-    bg_small = Functional.random_img_split(bg)
-
-    augmented_symb = augmentations.symbol_transform(symb).reshape((47, 27))
-    augmented_bg_small = augmentations.background_transform(bg_small).reshape((47, 27))
-
-    bg_small_avg_color = torch.mean(bg_small)
-
-    if torch.round(bg_small_avg_color) == 0:
-        tone_mult = 1
-
-    else:
-        tone_mult = 0
-
-    # Actually this one somehow combines these two images
-    main_img = (augmented_symb * augmented_bg_small - 0.5) + augmented_symb * (-tone_mult)
-
-    # plt.imshow(transforms(symb_dataset[10][0].reshape((47, 27))), cmap='Greys')
-    # plt.imshow(transforms(img_dataset.__getitem__(160, obj_class="cat")[0]), cmap='Greys')
-    plt.imshow(augmentations.final_transform(main_img), cmap='Greys')
+    dataset = AugmentedDataset(bg_obj_class="")
+    img = dataset[len(dataset) - 1][0]
+    plt.imshow(img, cmap='Greys')
     plt.show()
+
+    batch_loader = ImgLoader(dataset=dataset, batch_size=50, device=device)
+    train_batch_loader, valid_batch_loader = batch_loader.get_loaders(split_ratio=0.9)
+
 
 
     epochs = 2
