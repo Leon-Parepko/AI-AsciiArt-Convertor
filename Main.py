@@ -43,40 +43,30 @@ if mode == "train":
     train_batch_loader, valid_batch_loader = batch_loader.get_loaders(split_ratio=0.9)
 
 
-
+    model.train(mode=True)
     epochs = 2
     loss_func = torch.nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.004)
+    history = []
 
     for epoch in range(0, epochs):
+        np.random.seed(44)
+
+        for i, (img, ans) in enumerate(tqdm(train_batch_loader)):
+            Y_pred = model.forward(img.view(-1, torch.prod(img.shape)))
+            l = loss_func(Y_pred, ans)
+
+            l.backward()
+            optimizer.step()
+            optimizer.zero_grad()
+
+            if i % 3 == 0:
+                history.append(l.data)
+
+
+
+if mode == "test":
+    model.train(mode=False)
+
+    with torch.no_grad():
         pass
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    #
-    # with torch.no_grad:
-    #     pass
-    # for epoch in range(0, epochs):
-    #     for i, (features, ans) in enumerate(tqdm(train_batch_loader)):
-    #         # Forward pass
-    #         Y_pred = mnist_nn.forward(features.view(-1, 28 * 28))
-    #
-    #         loss = loss_func(Y_pred, ans)
-    #
-    #         # Backward pass
-    #         loss.backward()
-    #         optimizer.step()
-    #         optimizer.zero_grad()
-    #
-    #         if i % 3 == 0: history.append(loss.data)
