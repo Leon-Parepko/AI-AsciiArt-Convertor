@@ -30,6 +30,7 @@ class SymbolDataset(Dataset):
         return x, y
 
 
+
 class NaturalImagesDataset(Dataset):
     def __init__(self, root_img_dir, obj_class="", transform=None):
         self.root_img_dir = root_img_dir
@@ -77,10 +78,11 @@ class NaturalImagesDataset(Dataset):
         return x, y
 
 
+
 class AugmentedDataset(Dataset):
     def __init__(self, bg_obj_class="", transform=None):
         # Load all images as datasets (without augmentation)
-        self.symb_dataset = SymbolDataset("Data/Dataset/Font_letters", transform=torchvision.transforms.ToTensor())
+        self.symb_dataset = SymbolDataset("Data/Dataset/Graphical_Symbols", transform=torchvision.transforms.ToTensor())
         self.bg_dataset = NaturalImagesDataset("Data/Dataset/Natural_Images", obj_class=bg_obj_class,  transform=torchvision.transforms.ToTensor())
         self.transform = transform
 
@@ -98,5 +100,8 @@ class AugmentedDataset(Dataset):
 
         x = Functional.combine_images(bg, symb)
         y = self.symb_dataset[sym_index][1]
+
+        if self.transform:
+            x = self.transform(x)
 
         return x, y

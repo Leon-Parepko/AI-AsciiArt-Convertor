@@ -1,7 +1,15 @@
 import os
 import numpy as np
 import torch
+import torchvision
+
 import augmentations
+from skimage import io
+
+
+def gpu_check():
+    return torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
 
 def count_files(dir):
     counter = 0
@@ -9,6 +17,7 @@ def count_files(dir):
         files = content[2]
         counter += len(files)
     return counter
+
 
 def random_img_split(img):
     h, w = img.shape[0], img.shape[1]
@@ -43,3 +52,8 @@ def combine_images(bg, symb):
     augmented_main_image = augmentations.final_transform(main_img)
 
     return augmented_main_image
+
+
+def load_image(path):
+    img = torchvision.transforms.ToTensor()(io.imread(path))
+    return img
